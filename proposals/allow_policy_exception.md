@@ -73,7 +73,6 @@ Once the CR is created, the admin would be able to review the content and modify
 `Approval` Example:
 
 ```yaml
-
 ---
 spec:
   exceptions: name:..
@@ -215,3 +214,34 @@ This proposal just provides a solution for basic exception. There are many other
 2. Recycling Mechanism
 3. Documentation
 
+## Open questions
+
+1. should `status` be readOnly? And just let admin fill in `feedback`
+
+example:
+
+```yaml
+
+---
+spec:
+  policyName: disallow-latest-tag
+  ruleName: validate-image-tag
+  reason: allow-latest-tag-for-test
+  exclude:
+    all:
+      - name: test
+        kind:
+          - Deployment
+  feedback:
+    result: accept / deny
+    description: ..
+status:
+  state: pending/...
+```
+
+2. api edit permission
+3. Avoid contradiction (no 2 admins editing at the same time)
+
+   - explore the mechanism
+
+4. Requester can't change CR after apply
