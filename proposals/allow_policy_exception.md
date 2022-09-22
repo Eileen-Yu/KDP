@@ -2,7 +2,7 @@
 
 - **Authors**: Eileen Yu (@Eileen-Yu), Jim Bugwadia (jim@nirmata.com)
 - **Created**: Sep 16th, 2022
-- **Updated**: Sep 21st, 2022
+- **Updated**: Sep 20th, 2022
 - **Abstract**: Allow managing policy exceptions (exclude) independently of policies
 
 ## Contents
@@ -11,11 +11,10 @@
 - [Introduction](#introduction)
 - [The Problem](#the-problem)
 - [Proposed Solution](#proposed-solution)
-  - [High-Level Flow](#high-level-flow)
-  - [Ideal Usage](#ideal-usage)
+  - [Possible Solution](#possible-solution)
+    - [Request](#request)
+    - [Response](#response)
   - [Possible User Stories](#possible-user-stories)
-- [Implementation](#implementation)
-- [Alternative Solution](#alternative-solution)
 - [Next Steps](#next-steps)
 
 ## Introduction
@@ -42,7 +41,7 @@ The proposed solution is to introduce two new Custom Resource Definitions (CRDs)
 - **PolicyExceptionRequest**: a namespaced request to exclude a resource from a policy rule
 - **PolicyExceptionPolicyExceptionApproval**: a cluster-wide resource that permits exceptions
 
-### High-Level Flow
+#### High-Level Flow
 
 1. A user that is impacted by a policy violaation can create a `PolicyExceptionRequest` for their workload:
 
@@ -139,6 +138,7 @@ apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: disallow-latest-tag
+  annotations: ...
 spec:
   validationFailureAction: enforce
   background: true
@@ -198,7 +198,7 @@ Once the CR is created, the admin can review the CR and modify the spec if neces
 
 ```yaml
 spec:
-...
+---
 status:
   state: Rejected
   feedback:
@@ -210,7 +210,7 @@ status:
 
 ```yaml
 spec:
-...
+---
 status:
   state: Approved
   feedback:
@@ -282,10 +282,6 @@ The new CRD `PolicyExceptionApproval` can be defined and managed by the current 
 We may introduce a new `Informer` to get the latest `PolicyExceptionApproval` in the cluster.
 
 When the user apply the target resource, the Kyverno admission controller would first go through the policy check. If it's blocked, compare the violation report with the approved exception. If all the violations are matched with exceptions, let the request pass.
-
-![flow](https://user-images.githubusercontent.com/48944635/191593154-262f0676-cc3a-41d6-9839-8918e213e9bf.png)
-
-
 
 ## Alternative Solution
 
